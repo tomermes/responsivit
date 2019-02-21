@@ -1,8 +1,26 @@
 import React from 'react'
-import { Main } from '@sample-monorepo/components'
+import PreLoad from './preload'
 
-export interface IAppProps {
-    text: string
+export enum AppState{
+    PreLoad,
+    SiteLoaded
 }
 
-export const App: React.FunctionComponent<{}> = () => <Main/>
+export interface IState {
+    currAppState: AppState
+}
+
+export class App extends React.Component<{}, IState > {
+    constructor(props: {}) {
+        super(props)
+        this.state = {currAppState: AppState.PreLoad}
+    }
+
+    public render() {
+        if (this.state.currAppState === AppState.PreLoad){
+            return <PreLoad />
+        } else { // if (this.state.currAppState === AppState.SiteLoaded){
+            return <main>Main App</main>
+        }
+    }
+}
