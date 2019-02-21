@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css?family=Lato');
+
+:root {
+    --black: rgb(15, 44, 41);
+    --red: rgb(219, 0, 12);
+  }
+
+body{
+    margin: 0;
+    padding: 0;
+}
+
+.logo{
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 10px;
+    font-size: 45px;
+    font-family: 'Lato', serif;
+    color: var(--black);
+}
+
+.logo :last-child{
+    color: var(--red);
+}
+
+.preload{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Lato', serif;
+    color: var(--black);
+}
+
+.background{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url('../assets/images/background.png');
+    background-size: cover;
+    filter: grayscale(40%) brightness(80%) opacity(30%);
+}
+
+.container{
+    position: relative;
+    background-color: white;
+    height: 80px;
+    width: 700px;
+    border-radius: 12px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.24);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.container input{
+    background: none;
+    outline: none;
+    box-shadow: none;
+    border: none;
+    font-size: 40px;
+    color: rgba(0, 0, 0, 0.54);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.24);
+    font-family: 'Lato', serif;
+    width: 70%;
+}
+
+.container a{
+    font-size: 40px;
+    cursor: pointer;
+}

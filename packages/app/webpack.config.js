@@ -18,6 +18,16 @@ exports.module = {
         {
             test: /\.tsx?$/,
             loader: '@ts-tools/webpack-loader'
+        },
+        {
+            test: /\.png$/,
+            use:[
+                {loader: "file-loader"}
+            ]
+        },
+        {
+            test: /\.css$/, 
+            loader: "style-loader!css-loader",
         }
     ]
 }
