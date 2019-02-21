@@ -42,9 +42,13 @@
   "private": true,
   "dependencies": {
     "@types/jquery": "^3.3.29",
+    "@types/react-addons-css-transition-group": "^15.0.5",
+    "@types/react-transition-group": "^2.0.16",
     "css-loader": "^2.1.0",
     "file-loader": "^3.0.1",
     "jquery": "^3.3.1",
+    "react-addons-css-transition-group": "^15.6.2",
+    "react-transition-group": "^2.5.3",
     "run-p": "0.0.0",
     "style-loader": "^0.23.1",
     "ts-build": "^0.2.0",

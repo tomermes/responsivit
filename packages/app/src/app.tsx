@@ -1,6 +1,9 @@
 import React from 'react'
 import PreLoad from './preload'
 import MainFrame from './mainframe'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+
+import './app.css'
 
 export enum AppState{
     PreLoad,
@@ -24,10 +27,19 @@ export class App extends React.Component<{}, IAppState > {
     }
 
     public render() {
-        if (this.state.currAppState === AppState.PreLoad){
-            return <PreLoad app={this}/>
-        } else { // if (this.state.currAppState === AppState.SiteLoaded){
-            return <MainFrame />
-        }
+        return (
+            <ReactCSSTransitionGroup
+                component="div"
+                transitionName="fade"
+                transitionEnter={true}
+                transitionLeave={true}
+                transitionEnterTimeout={500}
+                transitionLeaveTimeout={500}
+            >
+                <div key={this.state.currAppState}>
+                    {this.state.currAppState === AppState.PreLoad ? <PreLoad app={this}/> : <MainFrame />}
+                </div>
+            </ReactCSSTransitionGroup>
+        )
     }
 }
