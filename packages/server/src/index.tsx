@@ -29,7 +29,7 @@ app.get('/server', (_req, res) => {
 </head>
 <body>
     <div id="SITE_MAIN" data-ssr>
-      ${ReactDOMServer.renderToString(<App text="Hello World (SSR!)" />)}
+      ${ReactDOMServer.renderToString(<App />)}
     </div>
     <script type="text/javascript" src="main.js"></script>
 </body>

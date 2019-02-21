@@ -5,9 +5,9 @@ import { App } from './app'
 const container = upsertContainer()
 
 if (container.hasAttribute('data-ssr')) {
-    hydrate(<App text="Hello World (hydrated)" />, container)
+    hydrate(<App/>, container)
 } else {
-    render(<App text="Hello World (client-only)" />, container)
+    render(<App/>, container)
 }
 
 function upsertContainer(): HTMLElement {
