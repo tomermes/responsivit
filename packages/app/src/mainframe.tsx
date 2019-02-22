@@ -1,8 +1,12 @@
 import React from 'react'
 import './mainframe.css'
 
-export default class MainFrame extends React.Component<{}, {} > {
-    constructor(props: {}) {
+export interface IMainFrameProps{
+    url: string
+}
+
+export default class MainFrame extends React.Component<IMainFrameProps, {} > {
+    constructor(props: IMainFrameProps) {
         super(props)
         this.state = {}
     }
@@ -11,7 +15,8 @@ export default class MainFrame extends React.Component<{}, {} > {
         // <iframe src="http://www.wix.com/" />
         return (
             <div className="mainframe">
-                <h1>Hello world</h1>
+                <input defaultValue={this.props.url} />
+                <iframe src={this.props.url} frameBorder={0} />
             </div>
         )
     }

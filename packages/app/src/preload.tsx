@@ -2,11 +2,16 @@ import React from 'react'
 import './preload.css'
 import $ from 'jquery'
 
-export default class PreLoad extends React.Component<any, {}> {
-    constructor(props: any) {
+import {App} from './app'
+
+export default class PreLoad extends React.Component<{app: App}, {}> {
+    private inputRef: React.RefObject<HTMLInputElement>
+
+    constructor(props: {app: App}) {
         super(props)
         this.state = {}
         this.moveToMain = this.moveToMain.bind(this);
+        this.inputRef = React.createRef()
     }
 
     public componentDidMount() {
@@ -22,7 +27,7 @@ export default class PreLoad extends React.Component<any, {}> {
                     <span>it</span>
                 </div>
                 <div className="container">
-                    <input placeholder="url to take for a ride..." />
+                    <input ref={this.inputRef} placeholder="url to take for a ride..." />
                     <a onClick={this.moveToMain}>Go!</a>
                 </div>
             </div>
@@ -30,6 +35,8 @@ export default class PreLoad extends React.Component<any, {}> {
     }
 
     public moveToMain() {
-        this.props.app.MoveToMain();
+        if (this.inputRef.current !== null){
+            this.props.app.MoveToMain(this.inputRef.current.value)
+        }
     }
 }

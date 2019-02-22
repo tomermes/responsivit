@@ -11,22 +11,28 @@ export enum AppState{
 }
 
 export interface IAppState {
-    currAppState: AppState
+    currAppState: AppState,
+    url: string
 }
 
 export class App extends React.Component<{}, IAppState > {
     constructor(props: {}) {
         super(props)
-        this.state = {currAppState: AppState.PreLoad}
+        this.state = {currAppState: AppState.PreLoad, url: ''}
     }
 
-    public MoveToMain(){
+    public MoveToMain(inputText: string){
+        if (!/^https?:\/\//i.test(inputText)) {
+            inputText = 'http://' + inputText;
+        }
         this.setState({
-            currAppState: AppState.SiteLoaded
+            currAppState: AppState.SiteLoaded,
+            url: inputText
         })
     }
 
     public render() {
+        const isPreload = this.state.currAppState === AppState.PreLoad
         return (
             <ReactCSSTransitionGroup
                 component="div"
@@ -36,8 +42,8 @@ export class App extends React.Component<{}, IAppState > {
                 transitionEnterTimeout={500}
                 transitionLeaveTimeout={500}
             >
-                <div key={this.state.currAppState}>
-                    {this.state.currAppState === AppState.PreLoad ? <PreLoad app={this}/> : <MainFrame />}
+                <div className="app" key={this.state.currAppState}>
+                    {isPreload ? <PreLoad app={this}/> : <MainFrame url={this.state.url} />}
                 </div>
             </ReactCSSTransitionGroup>
         )
