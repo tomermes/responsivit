@@ -34,11 +34,28 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         this.releaseHandler = this.releaseHandler.bind(this)
     }
 
+    public componentDidMount(){
+        const iframe = document.getElementsByTagName('iframe')[0] as HTMLIFrameElement;
+        if (iframe !== null) {
+            if (iframe.contentDocument !== null){
+                iframe.contentDocument.write(`
+                    <iframe src="${this.props.url}"
+                            frameborder="0"
+                            style="width:100%;
+                            height: 20000px"
+                            scrolling="no"
+                    />
+                `)
+                iframe.contentDocument.body.style.margin = '0px'
+            }
+        }
+    }
+
     public render() {
         return (
             <div className="mainframe" onMouseMove={this.moveHandler} onMouseUp={this.releaseHandler}>
                 <input defaultValue={this.props.url} />
-                <iframe src={this.props.url} frameBorder={0} style={this.state.iframeStyle}/>
+                <iframe src="about:blank" frameBorder={0} style={this.state.iframeStyle} />
                 <div className="drag-resizer" onMouseDown={this._startResizing} style={this.state.resizerStyle}>
                     <div className="line" />
                     <div className="line" />
