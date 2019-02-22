@@ -10,7 +10,8 @@ export default class PreLoad extends React.Component<{app: App}, {}> {
     constructor(props: {app: App}) {
         super(props)
         this.state = {}
-        this.moveToMain = this.moveToMain.bind(this);
+        this.moveToMain = this.moveToMain.bind(this)
+        this.handleKey = this.handleKey.bind(this)
         this.inputRef = React.createRef()
     }
 
@@ -27,7 +28,11 @@ export default class PreLoad extends React.Component<{app: App}, {}> {
                     <span>it</span>
                 </div>
                 <div className="container">
-                    <input ref={this.inputRef} placeholder="url to take for a ride..." />
+                    <input
+                        ref={this.inputRef}
+                        placeholder="url to take for a ride..."
+                        onKeyPress={this.handleKey}
+                    />
                     <a onClick={this.moveToMain}>Go!</a>
                 </div>
             </div>
@@ -38,5 +43,11 @@ export default class PreLoad extends React.Component<{app: App}, {}> {
         if (this.inputRef.current !== null){
             this.props.app.MoveToMain(this.inputRef.current.value)
         }
+    }
+
+    public handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (e.key === 'Enter') {
+            this.moveToMain()
+          }
     }
 }
