@@ -1,5 +1,5 @@
 {
-  "name": "@sample-monorepo/server",
+  "name": "@responsivit/server",
   "version": "1.0.0",
   "main": "cjs/index.js",
   "types": "cjs/index.d.ts",
@@ -11,7 +11,7 @@
     "lint:src": "tslint -p src",
     "lint:test": "tslint -p test",
     "test": "mocha -r @ts-tools/node/r \"test/**/*.spec.ts?(x)\" --watch-extensions ts,tsx --colors",
-    "prestart": "yarn workspace @sample-monorepo/app build:umd",
+    "prestart": "yarn workspace @responsivit/app build:umd",
     "start": "nodemon -r @ts-tools/node/r ./src/index.tsx",
     "prepack": "yarn build"
   },
@@ -20,7 +20,7 @@
     "react-dom": ">=16"
   },
   "dependencies": {
-    "@sample-monorepo/app": "^1.0.0",
+    "@responsivit/app": "^1.0.0",
     "compression": "^1.7.3",
     "express": "^4.16.4"
   },
@@ -30,7 +30,7 @@
     "!src/tsconfig.json"
   ],
   "license": "MIT",
-  "repository": "git@github.com:wixplosives/sample-monorepo.git",
+  "repository": "git@github.com:wixplosives/responsivit.git",
   "private": true,
   "publishConfig": {
     "access": "public"

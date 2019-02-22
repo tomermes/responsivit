@@ -1,5 +1,5 @@
 import React from 'react'
-import { App } from '@sample-monorepo/app'
+import { App } from '@responsivit/app'
 import { renderToString } from 'react-dom/server'
 import { expect } from 'chai'
 

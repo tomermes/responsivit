@@ -1,5 +1,5 @@
 {
-  "name": "@sample-monorepo/components",
+  "name": "@responsivit/components",
   "version": "1.0.0",
   "main": "cjs/index.js",
   "module": "esm/index.js",
@@ -24,7 +24,7 @@
     "!src/tsconfig.json"
   ],
   "license": "MIT",
-  "repository": "git@github.com:wixplosives/sample-monorepo.git",
+  "repository": "git@github.com:wixplosives/responsivit.git",
   "sideEffects": false,
   "private": true,
   "publishConfig": {

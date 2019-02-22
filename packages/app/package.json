@@ -1,5 +1,5 @@
 {
-  "name": "@sample-monorepo/app",
+  "name": "@responsivit/app",
   "version": "1.0.0",
   "main": "cjs/index.js",
   "types": "cjs/index.d.ts",
@@ -23,7 +23,7 @@
     "react-dom": ">=16"
   },
   "dependencies": {
-    "@sample-monorepo/components": "^1.0.0"
+    "@responsivit/components": "^1.0.0"
   },
   "files": [
     "cjs",
@@ -32,7 +32,7 @@
     "!src/tsconfig.json"
   ],
   "license": "MIT",
-  "repository": "git@github.com:wixplosives/sample-monorepo.git",
+  "repository": "git@github.com:wixplosives/responsivit.git",
   "private": true,
   "publishConfig": {
     "access": "public"

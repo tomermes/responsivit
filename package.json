@@ -1,5 +1,5 @@
 {
-  "name": "sample-monorepo",
+  "name": "responsivit",
   "workspaces": [
     "packages/*"
   ],
@@ -9,7 +9,7 @@
     "lint": "lerna run lint --stream --parallel",
     "pretest": "yarn lint",
     "test": "lerna run test --stream --parallel",
-    "start": "yarn workspace @sample-monorepo/app start"
+    "start": "yarn workspace @responsivit/app start"
   },
   "devDependencies": {
     "@ts-tools/build": "^0.1.10",
