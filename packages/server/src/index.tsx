@@ -1,20 +1,14 @@
 /* tslint:disable:no-console */
 
-import { dirname, join } from 'path'
 import express from 'express'
 import compression from 'compression'
-import React from 'react'
-import ReactDOMServer from 'react-dom/server'
-import { App } from '@responsivit/app'
+
+import {launch} from 'puppeteer'
 
 const app = express()
 const port = 3000
 
-const appRootDirectory = dirname(require.resolve('@responsivit/app/package.json'))
-const appBundleDirectory = join(appRootDirectory, 'umd')
-
 app.use(compression())
-app.use(express.static(appBundleDirectory))
 
 app.get('/server', (_req, res) => {
   res.send(`
@@ -29,12 +23,41 @@ app.get('/server', (_req, res) => {
 </head>
 <body>
     <div id="SITE_MAIN" data-ssr>
-      ${ReactDOMServer.renderToString(<App />)}
+      hello
     </div>
     <script type="text/javascript" src="main.js"></script>
 </body>
 </html>
 `.trim())
+  res.end()
+})
+
+interface IAnalyzedData {
+  numTexts: number
+}
+
+app.get('/analyze', async (_req, res) => {
+  const browser = await launch()
+
+  const page = await browser.newPage()
+  await page.goto('https://www.wix.com/about/contact-us')
+
+  const bodyHandle = await page.$('body')
+  const html = await page.evaluate(body => {
+      const data: IAnalyzedData = {
+        numTexts: 0
+      }
+      data.numTexts = body.querySelectorAll('p').length
+      return JSON.stringify(data)
+  }, bodyHandle)
+  if (bodyHandle != null) {
+    await bodyHandle.dispose()
+  }
+
+  res.send(html)
+
+  await browser.close()
+
   res.end()
 })
 
