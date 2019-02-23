@@ -32,8 +32,19 @@ app.get('/server', (_req, res) => {
   res.end()
 })
 
-interface IAnalyzedData {
-  numTexts: number
+enum ProblemType{
+  Error,
+  Warning
+}
+
+interface IResponsiveProblem{
+  text: string,
+  pType: ProblemType
+}
+
+export interface IAnalyzedData {
+  errors: IResponsiveProblem[],
+  warnings: IResponsiveProblem[],
 }
 
 app.get('/analyze', async (_req, res) => {
@@ -44,11 +55,13 @@ app.get('/analyze', async (_req, res) => {
 
   const bodyHandle = await page.$('body')
   const html = await page.evaluate(body => {
-      const data: IAnalyzedData = {
-        numTexts: 0
+      const errors = []
+      const getBoundingClientRect = (element: any) => { 
+        const {top, right, bottom, left, width, height, x, y} = element.getBoundingClientRect();
+        return {top, right, bottom, left, width, height, x, y}
       }
-      data.numTexts = body.querySelectorAll('p').length
-      return JSON.stringify(data)
+      errors.push(`${JSON.stringify(getBoundingClientRect(body.querySelectorAll('h1')[0]))}`)
+      return JSON.stringify({errors})
   }, bodyHandle)
   if (bodyHandle != null) {
     await bodyHandle.dispose()
