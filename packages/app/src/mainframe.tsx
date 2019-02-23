@@ -1,6 +1,6 @@
 import React from 'react'
 import './mainframe.css'
-import { FaHandPointLeft } from 'react-icons/fa'
+import { FaHandPointLeft, FaDesktop, FaTabletAlt, FaMobileAlt } from 'react-icons/fa'
 
 const minScreenSize = 320
 const handAppearThreshold = 50
@@ -149,17 +149,28 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         const handShouldAppear = (this.state.currLeft > handAppearThreshold)
         const screenSizeInput = (
                 <input
-                    name="uncontrolled"
                     ref={this.sizeInputRef}
                     onFocus={this.onInputFocus}
                     onBlur={this.onInputBlur}
                     onChange={this.changeScreenSizeByInput}
+                    size={4}
+                    maxLength={4}
+                    className="screen-size"
                 />
             )
+
+        const setDesktopSize = () => this.setScreenSize(1920)
+        const setTabletSize = () => this.setScreenSize(980)
+        const setMobileSize = () => this.setScreenSize(475)
         return (
             <div className="mainframe" onMouseMove={this.resize} onMouseUp={this.releaseHandler}>
-                <input ref={this.urlInputRef} defaultValue={this.props.url} onKeyPress={this.handleKeyUrl} />
+                <input ref={this.urlInputRef} defaultValue={this.props.url} onKeyPress={this.handleKeyUrl}/>
                 {screenSizeInput}
+                <div className="common-screens">
+                    <FaDesktop className="screenButton" onClick={setDesktopSize} />
+                    <FaTabletAlt className="screenButton" onClick={setTabletSize} />
+                    <FaMobileAlt className="screenButton" onClick={setMobileSize} />
+                </div>
                 <iframe src="about:blank" frameBorder={0} style={this.state.iframeStyle} />
                 <div className="drag-resizer" onMouseDown={this._startResizing} style={this.state.resizerStyle}>
                     <div className="line" />
