@@ -12,16 +12,19 @@ export interface IMainFrameProps {
 export interface IMainFrameState {
     screenSize: number,
     currLeft: number,
-    iframeStyle: {left: string, width: string, pointerEvents: any},
-    resizerStyle: {left: string},
-    url: string
+    iframeStyle: { left: string, width: string, pointerEvents: any },
+    resizerStyle: { left: string },
+    url: string,
+    isEditingSizeInput: boolean
 }
 
 const resizerOffset = 1
 
-export default class MainFrame extends React.Component<IMainFrameProps, IMainFrameState > {
+export default class MainFrame extends React.Component<IMainFrameProps, IMainFrameState> {
     private isResizing = false
-    private inputRef: React.RefObject<HTMLInputElement>
+    private urlInputRef: React.RefObject<HTMLInputElement>
+    private controlledSizeInputRef: React.RefObject<HTMLInputElement>
+    private uncontrolledSizeInputRef: React.RefObject<HTMLInputElement>
 
     constructor(props: IMainFrameProps) {
         super(props)
@@ -36,18 +39,25 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
             resizerStyle: {
                 left: `${resizerOffset}px`
             },
-            url: this.props.url
+            url: this.props.url,
+            isEditingSizeInput: false
         }
         this._startResizing = this._startResizing.bind(this)
         this.resize = this.resize.bind(this)
         this.releaseHandler = this.releaseHandler.bind(this)
-        this.handleKey = this.handleKey.bind(this)
-        this.inputRef = React.createRef()
+        this.handleKeyUrl = this.handleKeyUrl.bind(this)
         this.resetResizing = this.resetResizing.bind(this)
+        this.onInputFocus = this.onInputFocus.bind(this)
+        this.onInputBlur = this.onInputBlur.bind(this)
+        this.changeScreenSizeByInput = this.changeScreenSizeByInput.bind(this)        
+
+        this.urlInputRef = React.createRef()
+        this.controlledSizeInputRef = React.createRef()
+        this.uncontrolledSizeInputRef = React.createRef()
     }
 
     public reloadUrl() {
-        const iframe = document.getElementsByTagName('iframe')[0] as HTMLIFrameElement;
+        const iframe = document.getElementsByTagName('iframe')[0] as HTMLIFrameElement
         if (iframe !== null) {
             if (iframe.contentDocument !== null) {
                 iframe.contentDocument.body.innerHTML = `
@@ -63,76 +73,118 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         }
     }
 
-    public componentDidMount(){
+    public componentDidMount() {
         this.reloadUrl()
     }
 
-    public async handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
+    public async handleKeyUrl(e: React.KeyboardEvent<HTMLInputElement>) {
         if (e.key === 'Enter') {
-            if (this.inputRef.current !== null) {
+            if (this.urlInputRef.current !== null) {
                 await this.setState({
-                    url: this.inputRef.current.value
+                    url: this.urlInputRef.current.value
                 })
                 this.reloadUrl()
             }
         }
     }
 
-    public render() {
-        const handShouldAppear = (this.state.currLeft > handAppearThreshold)
-        return (
-            <div className="mainframe" onMouseMove={this.resize} onMouseUp={this.releaseHandler}>
-                <input ref={this.inputRef} defaultValue={this.props.url} onKeyPress={this.handleKey} />
-                <iframe src="about:blank" frameBorder={0} style={this.state.iframeStyle} />
-                <div className="drag-resizer" onMouseDown={this._startResizing} style={this.state.resizerStyle}>
-                    <div className="line" />
-                    <div className="line" />
-                </div>
-                {handShouldAppear ? <FaHandPointLeft className="return-left" onClick={this.resetResizing}/> : null}
-            </div>
-        )
+    public async setScreenSize(newScreenSize: number) {
+        if (newScreenSize >= minScreenSize && newScreenSize <= window.innerWidth) {
+            const currLeft = (window.innerWidth - newScreenSize) / 2
+            await this.setState({
+                screenSize: newScreenSize,
+                currLeft,
+                iframeStyle: {
+                    left: `${currLeft}px`,
+                    width: `${newScreenSize}px`,
+                    pointerEvents: 'none',
+                },
+                resizerStyle: {
+                    left: `${currLeft + resizerOffset}px`
+                }
+            })
+        }
     }
 
-    public async setScreenSize(newScreenSize: number){
-        const currLeft = (window.innerWidth - newScreenSize) / 2
-        await this.setState({
-            screenSize: newScreenSize,
-            currLeft,
-            iframeStyle: {
-                left: `${currLeft}px`,
-                width: `${newScreenSize}px`,
-                pointerEvents: 'none',
-            },
-            resizerStyle: {
-                left: `${currLeft + resizerOffset}px`
-            }
-        })
-    }
-
-    public async resetResizing(){
+    public async resetResizing() {
         this.setScreenSize(window.innerWidth)
     }
 
     public async resize(event: React.MouseEvent) {
         if (this.isResizing) {
             const newScreenSize = this.state.screenSize - event.movementX * 2
-            if (newScreenSize >= minScreenSize && newScreenSize < window.innerWidth){
-                this.setScreenSize(newScreenSize)
-            }
+            this.setScreenSize(newScreenSize)
         }
     }
 
     public releaseHandler() {
-        if (this.isResizing){
+        if (this.isResizing) {
             this._stopResizing()
         }
     }
 
-    public _startResizing() {
+    public onInputFocus() {
+        this.setState({
+            isEditingSizeInput: true
+        })
+    }
+
+    public onInputBlur() {
+        this.setState({
+            isEditingSizeInput: false
+        })
+    }
+
+    public changeScreenSizeByInput() {
+        if (this.uncontrolledSizeInputRef.current !== null) {
+            this.setScreenSize(parseInt(this.uncontrolledSizeInputRef.current.value, 10))
+        }
+    }
+
+    public render() {
+        const handShouldAppear = (this.state.currLeft > handAppearThreshold)
+        let screenSizeInput
+        if (this.state.isEditingSizeInput) {
+            screenSizeInput = (
+                <input
+                    name="uncontrolled"
+                    ref={this.uncontrolledSizeInputRef}
+                    onFocus={this.onInputFocus}
+                    onBlur={this.onInputBlur}
+                    onChange={this.changeScreenSizeByInput}
+                />
+            )
+        } else {
+            screenSizeInput = (
+                <input
+                    name="controlled"
+                    ref={this.controlledSizeInputRef}
+                    value={this.state.screenSize.toString()}
+                    readOnly={true}
+                    onFocus={this.onInputFocus}
+                    onBlur={this.onInputBlur}
+                />
+            )
+        }
+        return (
+            <div className="mainframe" onMouseMove={this.resize} onMouseUp={this.releaseHandler}>
+                <input ref={this.urlInputRef} defaultValue={this.props.url} onKeyPress={this.handleKeyUrl} />
+                {screenSizeInput}
+                <iframe src="about:blank" frameBorder={0} style={this.state.iframeStyle} />
+                <div className="drag-resizer" onMouseDown={this._startResizing} style={this.state.resizerStyle}>
+                    <div className="line" />
+                    <div className="line" />
+                </div>
+                {handShouldAppear ? <FaHandPointLeft className="return-left" onClick={this.resetResizing} /> : null}
+            </div>
+        )
+    }
+
+    private _startResizing() {
         this.isResizing = true
     }
 
-    private _stopResizing(){
+    private _stopResizing() {
         this.isResizing = false
         this.setState({
             iframeStyle: {

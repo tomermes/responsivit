@@ -34,7 +34,6 @@ input{
 }
 
 .mainframe iframe{
-    border-top: 1px solid gray;
     width: 100%;
     height: calc(100vh - var(--top-offset));
     position: absolute;
