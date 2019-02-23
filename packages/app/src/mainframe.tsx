@@ -23,8 +23,7 @@ const resizerOffset = 1
 export default class MainFrame extends React.Component<IMainFrameProps, IMainFrameState> {
     private isResizing = false
     private urlInputRef: React.RefObject<HTMLInputElement>
-    private controlledSizeInputRef: React.RefObject<HTMLInputElement>
-    private uncontrolledSizeInputRef: React.RefObject<HTMLInputElement>
+    private sizeInputRef: React.RefObject<HTMLInputElement>
 
     constructor(props: IMainFrameProps) {
         super(props)
@@ -49,11 +48,10 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         this.resetResizing = this.resetResizing.bind(this)
         this.onInputFocus = this.onInputFocus.bind(this)
         this.onInputBlur = this.onInputBlur.bind(this)
-        this.changeScreenSizeByInput = this.changeScreenSizeByInput.bind(this)        
+        this.changeScreenSizeByInput = this.changeScreenSizeByInput.bind(this)
 
         this.urlInputRef = React.createRef()
-        this.controlledSizeInputRef = React.createRef()
-        this.uncontrolledSizeInputRef = React.createRef()
+        this.sizeInputRef = React.createRef()
     }
 
     public reloadUrl() {
@@ -75,6 +73,9 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
 
     public componentDidMount() {
         this.reloadUrl()
+        if (this.sizeInputRef.current !== null){
+            this.sizeInputRef.current.value = window.innerWidth.toString()
+        }
     }
 
     public async handleKeyUrl(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -103,6 +104,9 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                     left: `${currLeft + resizerOffset}px`
                 }
             })
+            if (this.sizeInputRef.current !== null){
+                this.sizeInputRef.current.value = newScreenSize.toString()
+            }
         }
     }
 
@@ -136,36 +140,22 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
     }
 
     public changeScreenSizeByInput() {
-        if (this.uncontrolledSizeInputRef.current !== null) {
-            this.setScreenSize(parseInt(this.uncontrolledSizeInputRef.current.value, 10))
+        if (this.sizeInputRef.current !== null) {
+            this.setScreenSize(parseInt(this.sizeInputRef.current.value, 10))
         }
     }
 
     public render() {
         const handShouldAppear = (this.state.currLeft > handAppearThreshold)
-        let screenSizeInput
-        if (this.state.isEditingSizeInput) {
-            screenSizeInput = (
+        const screenSizeInput = (
                 <input
                     name="uncontrolled"
-                    ref={this.uncontrolledSizeInputRef}
+                    ref={this.sizeInputRef}
                     onFocus={this.onInputFocus}
                     onBlur={this.onInputBlur}
                     onChange={this.changeScreenSizeByInput}
                 />
             )
-        } else {
-            screenSizeInput = (
-                <input
-                    name="controlled"
-                    ref={this.controlledSizeInputRef}
-                    value={this.state.screenSize.toString()}
-                    readOnly={true}
-                    onFocus={this.onInputFocus}
-                    onBlur={this.onInputBlur}
-                />
-            )
-        }
         return (
             <div className="mainframe" onMouseMove={this.resize} onMouseUp={this.releaseHandler}>
                 <input ref={this.urlInputRef} defaultValue={this.props.url} onKeyPress={this.handleKeyUrl} />
