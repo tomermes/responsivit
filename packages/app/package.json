@@ -9,7 +9,7 @@
     "build": "run-p build:cjs build:umd",
     "build:cjs": "ts-build ./src --cjs",
     "build:umd": "yarn bundle:prod",
-    "bundle:prod": "webpack --mode production",
+    "bundle:prod": "webpack --mode production --config ./webpack.production.config.js",
     "bundle:dev": "webpack --mode development --devtool source-map",
     "lint": "run-p lint:src lint:test",
     "lint:src": "tslint -p src",
