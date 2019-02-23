@@ -3,12 +3,13 @@ import './mainframe.css'
 import { FaHandPointLeft } from 'react-icons/fa'
 
 const minScreenSize = 320
+const handAppearThreshold = 50
 
-export interface IMainFrameProps{
+export interface IMainFrameProps {
     url: string
 }
 
-export interface IMainFrameState{
+export interface IMainFrameState {
     screenSize: number,
     currLeft: number,
     iframeStyle: {left: string, width: string, pointerEvents: any},
@@ -42,9 +43,10 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         this.releaseHandler = this.releaseHandler.bind(this)
         this.handleKey = this.handleKey.bind(this)
         this.inputRef = React.createRef()
+        this.resetResizing = this.resetResizing.bind(this)
     }
 
-    public reloadUrl(){
+    public reloadUrl() {
         const iframe = document.getElementsByTagName('iframe')[0] as HTMLIFrameElement;
         if (iframe !== null) {
             if (iframe.contentDocument !== null) {
@@ -67,7 +69,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
 
     public async handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
         if (e.key === 'Enter') {
-            if (this.inputRef.current !== null){
+            if (this.inputRef.current !== null) {
                 await this.setState({
                     url: this.inputRef.current.value
                 })
@@ -77,6 +79,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
     }
 
     public render() {
+        const handShouldAppear = (this.state.currLeft > handAppearThreshold)
         return (
             <div className="mainframe" onMouseMove={this.resize} onMouseUp={this.releaseHandler}>
                 <input ref={this.inputRef} defaultValue={this.props.url} onKeyPress={this.handleKey} />
@@ -85,39 +88,47 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                     <div className="line" />
                     <div className="line" />
                 </div>
-                {(this.state.currLeft > 200) ? <FaHandPointLeft className="return-left" /> : null}
+                {handShouldAppear ? <FaHandPointLeft className="return-left" onClick={this.resetResizing}/> : null}
             </div>
         )
     }
 
-    public async resize(event: React.MouseEvent){
-        if (this.isResizing){
+    public async setScreenSize(newScreenSize: number){
+        const currLeft = (window.innerWidth - newScreenSize) / 2
+        await this.setState({
+            screenSize: newScreenSize,
+            currLeft,
+            iframeStyle: {
+                left: `${currLeft}px`,
+                width: `${newScreenSize}px`,
+                pointerEvents: 'none',
+            },
+            resizerStyle: {
+                left: `${currLeft + resizerOffset}px`
+            }
+        })
+    }
+
+    public async resetResizing(){
+        this.setScreenSize(window.innerWidth)
+    }
+
+    public async resize(event: React.MouseEvent) {
+        if (this.isResizing) {
             const newScreenSize = this.state.screenSize - event.movementX * 2
             if (newScreenSize >= minScreenSize && newScreenSize < window.innerWidth){
-                const currLeft = (window.innerWidth - newScreenSize) / 2
-                await this.setState({
-                    screenSize: newScreenSize,
-                    currLeft: currLeft,
-                    iframeStyle: {
-                        left: `${currLeft}px`,
-                        width: `${this.state.screenSize}px`,
-                        pointerEvents: 'none',
-                    },
-                    resizerStyle: {
-                        left: `${currLeft + resizerOffset}px`
-                    }
-                })
+                this.setScreenSize(newScreenSize)
             }
         }
     }
 
-    public releaseHandler(){
+    public releaseHandler() {
         if (this.isResizing){
             this._stopResizing()
         }
     }
 
-    public _startResizing(){
+    public _startResizing() {
         this.isResizing = true
     }
 
