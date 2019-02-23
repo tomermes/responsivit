@@ -1,5 +1,8 @@
 import React from 'react'
 import './mainframe.css'
+import { FaHandPointLeft } from 'react-icons/fa'
+
+const minScreenSize = 320
 
 export interface IMainFrameProps{
     url: string
@@ -7,19 +10,23 @@ export interface IMainFrameProps{
 
 export interface IMainFrameState{
     screenSize: number,
+    currLeft: number,
     iframeStyle: {left: string, width: string, pointerEvents: any},
     resizerStyle: {left: string},
+    url: string
 }
 
 const resizerOffset = 1
 
 export default class MainFrame extends React.Component<IMainFrameProps, IMainFrameState > {
     private isResizing = false
+    private inputRef: React.RefObject<HTMLInputElement>
 
     constructor(props: IMainFrameProps) {
         super(props)
         this.state = {
             screenSize: window.innerWidth,
+            currLeft: 0,
             iframeStyle: {
                 left: '0px',
                 width: `${window.innerWidth}px`,
@@ -27,59 +34,80 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
             },
             resizerStyle: {
                 left: `${resizerOffset}px`
-            }
+            },
+            url: this.props.url
         }
         this._startResizing = this._startResizing.bind(this)
-        this.moveHandler = this.moveHandler.bind(this)
+        this.resize = this.resize.bind(this)
         this.releaseHandler = this.releaseHandler.bind(this)
+        this.handleKey = this.handleKey.bind(this)
+        this.inputRef = React.createRef()
+    }
+
+    public reloadUrl(){
+        const iframe = document.getElementsByTagName('iframe')[0] as HTMLIFrameElement;
+        if (iframe !== null) {
+            if (iframe.contentDocument !== null) {
+                iframe.contentDocument.body.innerHTML = `
+                    <iframe src="${this.state.url}"
+                    frameborder="0"
+                    style="width:100%;
+                    height: 20000px"
+                    scrolling="no"
+                    />
+                `
+                iframe.contentDocument.body.style.margin = '0px'
+            }
+        }
     }
 
     public componentDidMount(){
-        const iframe = document.getElementsByTagName('iframe')[0] as HTMLIFrameElement;
-        if (iframe !== null) {
-            if (iframe.contentDocument !== null){
-                iframe.contentDocument.write(`
-                    <iframe src="${this.props.url}"
-                            frameborder="0"
-                            style="width:100%;
-                            height: 20000px"
-                            scrolling="no"
-                    />
-                `)
-                iframe.contentDocument.body.style.margin = '0px'
+        this.reloadUrl()
+    }
+
+    public async handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (e.key === 'Enter') {
+            if (this.inputRef.current !== null){
+                await this.setState({
+                    url: this.inputRef.current.value
+                })
+                this.reloadUrl()
             }
         }
     }
 
     public render() {
         return (
-            <div className="mainframe" onMouseMove={this.moveHandler} onMouseUp={this.releaseHandler}>
-                <input defaultValue={this.props.url} />
+            <div className="mainframe" onMouseMove={this.resize} onMouseUp={this.releaseHandler}>
+                <input ref={this.inputRef} defaultValue={this.props.url} onKeyPress={this.handleKey} />
                 <iframe src="about:blank" frameBorder={0} style={this.state.iframeStyle} />
                 <div className="drag-resizer" onMouseDown={this._startResizing} style={this.state.resizerStyle}>
                     <div className="line" />
                     <div className="line" />
                 </div>
+                {(this.state.currLeft > 200) ? <FaHandPointLeft className="return-left" /> : null}
             </div>
         )
     }
 
-    public moveHandler(event: React.MouseEvent){
+    public async resize(event: React.MouseEvent){
         if (this.isResizing){
-            this.setState({
-                screenSize: this.state.screenSize - event.movementX * 2
-            })
-            const currLeft = (window.innerWidth - this.state.screenSize) / 2
-            this.setState({
-                iframeStyle: {
-                    left: `${currLeft}px`,
-                    width: `${this.state.screenSize}px`,
-                    pointerEvents: 'none',
-                },
-                resizerStyle: {
-                    left: `${currLeft + resizerOffset}px`
-                }
-            })
+            const newScreenSize = this.state.screenSize - event.movementX * 2
+            if (newScreenSize >= minScreenSize && newScreenSize < window.innerWidth){
+                const currLeft = (window.innerWidth - newScreenSize) / 2
+                await this.setState({
+                    screenSize: newScreenSize,
+                    currLeft: currLeft,
+                    iframeStyle: {
+                        left: `${currLeft}px`,
+                        width: `${this.state.screenSize}px`,
+                        pointerEvents: 'none',
+                    },
+                    resizerStyle: {
+                        left: `${currLeft + resizerOffset}px`
+                    }
+                })
+            }
         }
     }
 

@@ -67,3 +67,12 @@ input{
     margin: 1px;
     box-shadow: 0 5px 8px rgba(0,0,0,0.24);
 }
+
+.return-left{
+    font-size: 30px;
+    position: absolute;
+    left: 5px;
+    top: calc(50% - 15px);
+    cursor: pointer;
+    color: var(--black)
+}

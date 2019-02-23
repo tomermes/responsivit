@@ -23,7 +23,7 @@ export class App extends React.Component<{}, IAppState > {
 
     public MoveToMain(inputText: string){
         if (!/^https?:\/\//i.test(inputText)) {
-            inputText = 'http://' + inputText;
+            inputText = 'https://' + inputText
         }
         this.setState({
             currAppState: AppState.SiteLoaded,
