@@ -2,7 +2,7 @@
 
 :root {
     --black: rgb(15, 44, 41);
-    --red: rgb(219, 0, 12);
+    --blue: rgb(19, 211, 254);
 }
 
 body{
@@ -21,7 +21,7 @@ body{
 }
 
 .logo :last-child{
-    color: var(--red);
+    color: var(--blue);
 }
 
 .preload{

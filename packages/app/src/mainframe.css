@@ -4,6 +4,7 @@
     --black: rgb(15, 44, 41);
     --white: white;
     --top-offset: 50px;
+    --blue: rgb(19, 211, 254);
 }
 
 *{
@@ -16,7 +17,6 @@ body{
 }
 
 input{
-    padding-left: 20px;
     background: none;
     outline: none;
     box-shadow: none;
@@ -25,7 +25,19 @@ input{
     color: rgba(0, 0, 0, 0.54);
     text-shadow: 0 1px 2px rgba(0,0,0,0.24);
     font-family: 'Lato', serif;
+}
+
+.url-input{
+    padding-left: 20px;
+    border-right: 1px #eaf7ff solid;
     width: 38%;
+    text-align: left;
+}
+
+header{
+    position: relative;
+    box-shadow: 0 1px 5px 0 rgba(41,85,115,.21);
+    z-index: 2;
 }
 
 .mainframe{
@@ -81,13 +93,29 @@ input{
     justify-content: space-around;
     width: 15%;
     font-size: 30px;
+    height: 100%;
+}
+
+.selected{
+    border-bottom: var(--blue) 3px solid;
 }
 
 .screen-size{
     width: 120px;
+    text-align: center;
+    font-size: 34px;
 }
 
 .screenButton{
     color: var(--black);
     cursor: pointer;
+    
+}
+
+.selected > *{
+    color: var(--blue);
+}
+
+.screenButton:hover{
+    color: var(--blue);
 }

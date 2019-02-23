@@ -5,6 +5,14 @@ import { FaHandPointLeft, FaDesktop, FaTabletAlt, FaMobileAlt } from 'react-icon
 const minScreenSize = 320
 const handAppearThreshold = 50
 
+const desktopSize = 1920
+const desktopMinSize = 1200
+
+const tabletSize = 980
+const tabletMinSize = 640
+
+const mobileSize = 475
+
 export interface IMainFrameProps {
     url: string
 }
@@ -42,7 +50,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
             isEditingSizeInput: false
         }
         this._startResizing = this._startResizing.bind(this)
-        this.resize = this.resize.bind(this)
+        this.dragResize = this.dragResize.bind(this)
         this.releaseHandler = this.releaseHandler.bind(this)
         this.handleKeyUrl = this.handleKeyUrl.bind(this)
         this.resetResizing = this.resetResizing.bind(this)
@@ -73,7 +81,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
 
     public componentDidMount() {
         this.reloadUrl()
-        if (this.sizeInputRef.current !== null){
+        if (this.sizeInputRef.current !== null) {
             this.sizeInputRef.current.value = window.innerWidth.toString()
         }
     }
@@ -89,7 +97,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         }
     }
 
-    public async setScreenSize(newScreenSize: number) {
+    public async setScreenSize(newScreenSize: number, disablePointerEvents: boolean) {
         if (newScreenSize >= minScreenSize && newScreenSize <= window.innerWidth) {
             const currLeft = (window.innerWidth - newScreenSize) / 2
             await this.setState({
@@ -98,26 +106,30 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                 iframeStyle: {
                     left: `${currLeft}px`,
                     width: `${newScreenSize}px`,
-                    pointerEvents: 'none',
+                    pointerEvents: (disablePointerEvents ? 'none' : 'initial'),
                 },
                 resizerStyle: {
                     left: `${currLeft + resizerOffset}px`
                 }
             })
-            if (this.sizeInputRef.current !== null){
+            if (this.sizeInputRef.current !== null) {
                 this.sizeInputRef.current.value = newScreenSize.toString()
             }
         }
     }
 
     public async resetResizing() {
-        this.setScreenSize(window.innerWidth)
+        this.setScreenSize(window.innerWidth, false)
     }
 
-    public async resize(event: React.MouseEvent) {
+    public async resize(event: React.MouseEvent, disablePointerEvents: boolean = false) {
+        const newScreenSize = this.state.screenSize - event.movementX * 2
+        this.setScreenSize(newScreenSize, disablePointerEvents)
+    }
+
+    public async dragResize(event: React.MouseEvent){
         if (this.isResizing) {
-            const newScreenSize = this.state.screenSize - event.movementX * 2
-            this.setScreenSize(newScreenSize)
+            this.resize(event, true)
         }
     }
 
@@ -141,36 +153,62 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
 
     public changeScreenSizeByInput() {
         if (this.sizeInputRef.current !== null) {
-            this.setScreenSize(parseInt(this.sizeInputRef.current.value, 10))
+            this.setScreenSize(parseInt(this.sizeInputRef.current.value, 10), false)
         }
     }
 
     public render() {
         const handShouldAppear = (this.state.currLeft > handAppearThreshold)
         const screenSizeInput = (
-                <input
-                    ref={this.sizeInputRef}
-                    onFocus={this.onInputFocus}
-                    onBlur={this.onInputBlur}
-                    onChange={this.changeScreenSizeByInput}
-                    size={4}
-                    maxLength={4}
-                    className="screen-size"
-                />
-            )
+            <input
+                ref={this.sizeInputRef}
+                onFocus={this.onInputFocus}
+                onBlur={this.onInputBlur}
+                onChange={this.changeScreenSizeByInput}
+                size={4}
+                maxLength={4}
+                className="screen-size"
+            />
+        )
 
-        const setDesktopSize = () => this.setScreenSize(1920)
-        const setTabletSize = () => this.setScreenSize(980)
-        const setMobileSize = () => this.setScreenSize(475)
+        const setDesktopSize = () => this.setScreenSize(Math.min(window.innerWidth, desktopSize), false)
+        const setTabletSize = () => this.setScreenSize(tabletSize, false)
+        const setMobileSize = () => this.setScreenSize(mobileSize, false)
+
+        const isBetween = (num: number, min: number, max: number) => num >= min && num <= max
+        const isTablet = isBetween(this.state.screenSize, tabletMinSize, desktopMinSize - 1)
         return (
-            <div className="mainframe" onMouseMove={this.resize} onMouseUp={this.releaseHandler}>
-                <input ref={this.urlInputRef} defaultValue={this.props.url} onKeyPress={this.handleKeyUrl}/>
-                {screenSizeInput}
-                <div className="common-screens">
-                    <FaDesktop className="screenButton" onClick={setDesktopSize} />
-                    <FaTabletAlt className="screenButton" onClick={setTabletSize} />
-                    <FaMobileAlt className="screenButton" onClick={setMobileSize} />
-                </div>
+            <div className="mainframe" onMouseMove={this.dragResize} onMouseUp={this.releaseHandler}>
+                <header>
+                    <input
+                        className="url-input"
+                        ref={this.urlInputRef}
+                        defaultValue={this.props.url}
+                        onKeyPress={this.handleKeyUrl}
+                    />
+                    {screenSizeInput}
+                    <div className="common-screens">
+                        <div className={this.state.screenSize > desktopMinSize ? 'selected' : ''}>
+                            <FaDesktop
+                                className="screenButton"
+                                onClick={setDesktopSize}
+                                style={{ fontSize: '30px' }}
+                            />
+                        </div>
+                        <div className={isTablet ? 'selected' : ''}>
+                            <FaTabletAlt
+                                className="screenButton"
+                                onClick={setTabletSize}
+                            />
+                        </div>
+                        <div className={this.state.screenSize < tabletMinSize ? 'selected' : ''}>
+                            <FaMobileAlt
+                                className="screenButton"
+                                onClick={setMobileSize}
+                            />
+                        </div>
+                    </div>
+                </header>
                 <iframe src="about:blank" frameBorder={0} style={this.state.iframeStyle} />
                 <div className="drag-resizer" onMouseDown={this._startResizing} style={this.state.resizerStyle}>
                     <div className="line" />
