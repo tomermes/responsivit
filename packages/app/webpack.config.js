@@ -37,5 +37,5 @@ exports.resolve = {
 }
 
 exports.plugins = [
-    new HtmlWebpackPlugin({title: 'Responsivit'})
+    new HtmlWebpackPlugin({title: 'Responsivit - responsive tester'})
 ]
