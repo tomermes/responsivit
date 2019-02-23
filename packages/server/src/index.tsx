@@ -53,21 +53,27 @@ app.get('/analyze', async (_req, res) => {
   const page = await browser.newPage()
   await page.goto('https://www.wix.com/about/contact-us')
 
-  const bodyHandle = await page.$('body')
-  const html = await page.evaluate(body => {
-      const errors = []
-      const getBoundingClientRect = (element: any) => { 
-        const {top, right, bottom, left, width, height, x, y} = element.getBoundingClientRect();
-        return {top, right, bottom, left, width, height, x, y}
-      }
-      errors.push(`${JSON.stringify(getBoundingClientRect(body.querySelectorAll('h1')[0]))}`)
-      return JSON.stringify({errors})
-  }, bodyHandle)
-  if (bodyHandle != null) {
-    await bodyHandle.dispose()
+  const body = await page.$('body')
+
+  let totalResponse = ''
+  const sizes = [1920, 1400, 1000]
+  for (const size of sizes){
+    await page.setViewport({width: size, height: 980})
+    totalResponse += await page.evaluate((evalBody, evalSize) => {
+        const errors = []
+        const getBoundingClientRect = (element: any) => {
+          const {top, right, bottom, left, width, height, x, y} = element.getBoundingClientRect();
+          return {top, right, bottom, left, width, height, x, y}
+        }
+        errors.push(`size=${evalSize}: ${JSON.stringify(getBoundingClientRect(evalBody.querySelectorAll('h1')[0]))}\n`)
+        return JSON.stringify({errors})
+    }, body, size)
   }
 
-  res.send(html)
+  if (body != null) {
+    await body.dispose()
+  }
+  res.send(totalResponse)
 
   await browser.close()
 
