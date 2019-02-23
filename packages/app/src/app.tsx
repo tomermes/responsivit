@@ -5,7 +5,7 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 import './app.css'
 
-export enum AppState{
+export enum AppState {
     PreLoad,
     SiteLoaded
 }
@@ -15,13 +15,13 @@ export interface IAppState {
     url: string
 }
 
-export class App extends React.Component<{}, IAppState > {
+export class App extends React.Component<{}, IAppState> {
     constructor(props: {}) {
         super(props)
-        this.state = {currAppState: AppState.PreLoad, url: ''}
+        this.state = { currAppState: AppState.PreLoad, url: '' }
     }
 
-    public MoveToMain(inputText: string){
+    public MoveToMain(inputText: string) {
         if (!/^https?:\/\//i.test(inputText)) {
             inputText = 'https://' + inputText
         }
@@ -43,7 +43,7 @@ export class App extends React.Component<{}, IAppState > {
                 transitionLeaveTimeout={500}
             >
                 <div className="app" key={this.state.currAppState}>
-                    {isPreload ? <PreLoad app={this}/> : <MainFrame url={this.state.url} />}
+                    {isPreload ? <PreLoad app={this} /> : <MainFrame url={this.state.url} />}
                 </div>
             </ReactCSSTransitionGroup>
         )

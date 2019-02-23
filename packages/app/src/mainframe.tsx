@@ -84,6 +84,13 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         if (this.sizeInputRef.current !== null) {
             this.sizeInputRef.current.value = window.innerWidth.toString()
         }
+        const script = document.createElement('script')
+
+        script.src = 'https://buttons.github.io/buttons.js'
+        script.async = true
+        script.defer = true
+
+        document.body.appendChild(script)
     }
 
     public async handleKeyUrl(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -127,7 +134,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         this.setScreenSize(newScreenSize, disablePointerEvents)
     }
 
-    public async dragResize(event: React.MouseEvent){
+    public async dragResize(event: React.MouseEvent) {
         if (this.isResizing) {
             this.resize(event, true)
         }
@@ -156,6 +163,20 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
             this.setScreenSize(parseInt(this.sizeInputRef.current.value, 10), false)
         }
     }
+
+    /*
+    <a
+        className="github-button"
+        href="https://github.com/tomermes/responsivit"
+        data-icon="octicon-star"
+        data-size="large"
+        data-show-count="false"
+        aria-label="Star tomermes/responsivit on GitHub"
+        style={{float: 'right', display: 'none'}}
+    >
+            Star
+    </a>
+    */
 
     public render() {
         const handShouldAppear = (this.state.currLeft > handAppearThreshold)
