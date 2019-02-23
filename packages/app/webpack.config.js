@@ -20,7 +20,7 @@ exports.module = {
             loader: '@ts-tools/webpack-loader'
         },
         {
-            test: /\.png$/,
+            test: /\.jpg$/,
             use:[
                 {loader: "file-loader"}
             ]
