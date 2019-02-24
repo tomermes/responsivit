@@ -36,6 +36,8 @@ input{
 
 header{
     position: relative;
+    display: flex;
+    justify-content: start;
     box-shadow: 0 1px 5px 0 rgba(41,85,115,.21);
     z-index: 2;
 }
@@ -88,12 +90,49 @@ header{
     color: var(--black)
 }
 
+.mid-panel{
+    display: inline-flex;
+    width: 25%;
+    justify-content: space-between;
+    border-right: 1px #eaf7ff solid;
+}
+
+.right-panel{
+    display: inline-flex;
+    justify-content: space-around;
+    width: 37%;
+    align-items: center;
+}
+
+.problems{
+    display: flex;
+    justify-content: space-around;
+    font-size: 30px;
+    width: 200px;
+}
+
+.problems span{
+    font-family: 'Lato', serif;
+    color: var(--black);
+    line-height: 30px;
+
+}
+
+.error-icon{
+    color: #fd5353;
+}
+
+.warning-icon{
+    color: #ff8f00;
+}
+
 .common-screens{
     display: inline-flex;
     justify-content: space-around;
-    width: 15%;
+    width: 55%;
     font-size: 30px;
-    height: 100%;
+    height: 85%;
+    align-self: flex-end;
 }
 
 .selected{
@@ -106,7 +145,7 @@ header{
     font-size: 34px;
 }
 
-.screenButton{
+.screen-button{
     color: var(--black);
     cursor: pointer;
     
@@ -116,6 +155,6 @@ header{
     color: var(--blue);
 }
 
-.screenButton:hover{
+.screen-button:hover{
     color: var(--blue);
 }

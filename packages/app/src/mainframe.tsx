@@ -1,6 +1,13 @@
 import React from 'react'
 import './mainframe.css'
-import { FaHandPointLeft, FaDesktop, FaTabletAlt, FaMobileAlt } from 'react-icons/fa'
+import {
+    FaHandPointLeft,
+    FaDesktop,
+    FaTabletAlt,
+    FaMobileAlt,
+    FaExclamationCircle,
+    FaExclamationTriangle
+} from 'react-icons/fa'
 
 const minScreenSize = 320
 const handAppearThreshold = 50
@@ -70,7 +77,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                     <iframe src="${this.state.url}"
                     frameborder="0"
                     style="width:100%;
-                    height: 20000px"
+                    height: 10000px"
                     scrolling="no"
                     />
                 `
@@ -105,23 +112,39 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
     }
 
     public async setScreenSize(newScreenSize: number, disablePointerEvents: boolean) {
-        if (newScreenSize >= minScreenSize && newScreenSize <= window.innerWidth) {
-            const currLeft = (window.innerWidth - newScreenSize) / 2
-            await this.setState({
-                screenSize: newScreenSize,
-                currLeft,
-                iframeStyle: {
-                    left: `${currLeft}px`,
-                    width: `${newScreenSize}px`,
-                    pointerEvents: (disablePointerEvents ? 'none' : 'initial'),
-                },
-                resizerStyle: {
-                    left: `${currLeft + resizerOffset}px`
-                }
-            })
-            if (this.sizeInputRef.current !== null) {
-                this.sizeInputRef.current.value = newScreenSize.toString()
+        if (isNaN(newScreenSize)) {
+            return
+        }
+        const isInputActiveElement = document.activeElement !== null && document.activeElement.tagName === 'INPUT'
+        if (newScreenSize < minScreenSize) {
+            if (!isInputActiveElement){
+                newScreenSize = minScreenSize
+            } else {
+                return
             }
+        }
+        if (newScreenSize > window.innerWidth) {
+            if (!isInputActiveElement){
+                newScreenSize = window.innerWidth
+            } else {
+                return
+            }
+        }
+        const currLeft = (window.innerWidth - newScreenSize) / 2
+        await this.setState({
+            screenSize: newScreenSize,
+            currLeft,
+            iframeStyle: {
+                left: `${currLeft}px`,
+                width: `${newScreenSize}px`,
+                pointerEvents: (disablePointerEvents ? 'none' : 'initial'),
+            },
+            resizerStyle: {
+                left: `${currLeft + resizerOffset}px`
+            }
+        })
+        if (this.sizeInputRef.current !== null) {
+            this.sizeInputRef.current.value = newScreenSize.toString()
         }
     }
 
@@ -164,20 +187,6 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         }
     }
 
-    /*
-    <a
-        className="github-button"
-        href="https://github.com/tomermes/responsivit"
-        data-icon="octicon-star"
-        data-size="large"
-        data-show-count="false"
-        aria-label="Star tomermes/responsivit on GitHub"
-        style={{float: 'right', display: 'none'}}
-    >
-            Star
-    </a>
-    */
-
     public render() {
         const handShouldAppear = (this.state.currLeft > handAppearThreshold)
         const screenSizeInput = (
@@ -207,27 +216,52 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                         defaultValue={this.props.url}
                         onKeyPress={this.handleKeyUrl}
                     />
-                    {screenSizeInput}
-                    <div className="common-screens">
-                        <div className={this.state.screenSize > desktopMinSize ? 'selected' : ''}>
-                            <FaDesktop
-                                className="screenButton"
-                                onClick={setDesktopSize}
-                                style={{ fontSize: '30px' }}
+                    <div className="mid-panel">
+                        {screenSizeInput}
+                        <div className="common-screens">
+                            <div className={this.state.screenSize > desktopMinSize ? 'selected' : ''}>
+                                <FaDesktop
+                                    className="screen-button"
+                                    onClick={setDesktopSize}
+                                    style={{ fontSize: '30px' }}
+                                />
+                            </div>
+                            <div className={isTablet ? 'selected' : ''}>
+                                <FaTabletAlt
+                                    className="screen-button"
+                                    onClick={setTabletSize}
+                                />
+                            </div>
+                            <div className={this.state.screenSize < tabletMinSize ? 'selected' : ''}>
+                                <FaMobileAlt
+                                    className="screen-button"
+                                    onClick={setMobileSize}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="right-panel">
+                        <div className="problems">
+                            <span>0</span>
+                            <FaExclamationTriangle
+                                className="error-icon"
+                            />
+                            <span>0</span>
+                            <FaExclamationCircle
+                                className="warning-icon"
                             />
                         </div>
-                        <div className={isTablet ? 'selected' : ''}>
-                            <FaTabletAlt
-                                className="screenButton"
-                                onClick={setTabletSize}
-                            />
-                        </div>
-                        <div className={this.state.screenSize < tabletMinSize ? 'selected' : ''}>
-                            <FaMobileAlt
-                                className="screenButton"
-                                onClick={setMobileSize}
-                            />
-                        </div>
+                        <a
+                            className="github-button"
+                            href="https://github.com/tomermes/responsivit"
+                            data-icon="octicon-star"
+                            data-size="large"
+                            data-show-count="false"
+                            aria-label="Star tomermes/responsivit on GitHub"
+                            style={{float: 'right', display: 'none'}}
+                        >
+                                Star
+                        </a>
                     </div>
                 </header>
                 <iframe src="about:blank" frameBorder={0} style={this.state.iframeStyle} />
