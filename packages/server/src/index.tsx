@@ -3,7 +3,7 @@
 import express from 'express'
 import compression from 'compression'
 
-import {launch} from 'puppeteer'
+import { launch } from 'puppeteer'
 
 const app = express()
 const port = 3000
@@ -32,12 +32,12 @@ app.get('/server', (_req, res) => {
   res.end()
 })
 
-enum ProblemType{
+enum ProblemType {
   Error,
   Warning
 }
 
-interface IResponsiveProblem{
+interface IResponsiveProblem {
   text: string,
   pType: ProblemType
 }
@@ -47,33 +47,57 @@ export interface IAnalyzedData {
   warnings: IResponsiveProblem[],
 }
 
+export interface Iproblem {
+  screenSize: number,
+  left: number,
+  top: number,
+  right: number,
+  bottom: number,
+  innerText?: string
+}
+
 app.get('/analyze', async (_req, res) => {
-  const browser = await launch()
+  const browser = await launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
 
   const page = await browser.newPage()
-  await page.goto('https://www.wix.com/about/contact-us')
+  await page.goto(decodeURIComponent(_req.query.url))
 
   const body = await page.$('body')
 
-  let totalResponse = ''
+  let errors: Iproblem[] = []
   const sizes = [1920, 1400, 1000]
-  for (const size of sizes){
-    await page.setViewport({width: size, height: 980})
-    totalResponse += await page.evaluate((evalBody, evalSize) => {
-        const errors = []
-        const getBoundingClientRect = (element: any) => {
-          const {top, right, bottom, left, width, height, x, y} = element.getBoundingClientRect();
-          return {top, right, bottom, left, width, height, x, y}
+  for (const screenSize of sizes) {
+    await page.setViewport({ width: screenSize, height: 980 })
+    errors = errors.concat(await page.evaluate((evalBody, evalSize) => {
+
+      const currErrors: Iproblem[] = []
+      // error 1, find texts and headlines which are overflowing to right or to left
+      const textsAndHeadlines = evalBody.querySelectorAll('h1, h2, h3, h4, h5, h6, p')
+      Array.from(textsAndHeadlines).map((text: any)  => {
+        const textRect = text.getBoundingClientRect()
+        const textSize = textRect.width * textRect.height
+
+        const isRightOverflow = textSize > 0 && textRect.right > window.innerWidth && textRect.left < window.innerWidth
+        const isLeftOverflow = textSize > 0 && textRect.left < 0 && textRect.right > 0
+        if (isRightOverflow || isLeftOverflow) {
+          currErrors.push({
+            screenSize: evalSize,
+            left: textRect.left,
+            top: textRect.top,
+            right: textRect.right,
+            bottom: textRect.bottom,
+            innerText: text.innerText
+          })
         }
-        errors.push(`size=${evalSize}: ${JSON.stringify(getBoundingClientRect(evalBody.querySelectorAll('h1')[0]))}\n`)
-        return JSON.stringify({errors})
-    }, body, size)
+      })
+      return currErrors
+    }, body, screenSize))
   }
 
   if (body != null) {
     await body.dispose()
   }
-  res.send(totalResponse)
+  res.send(JSON.stringify(errors))
 
   await browser.close()
 

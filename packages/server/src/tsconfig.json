@@ -2,7 +2,7 @@
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "lib": [
-      // no "dom" for server package.
+      "dom",
       "es2017"
     ],
     "types": [
