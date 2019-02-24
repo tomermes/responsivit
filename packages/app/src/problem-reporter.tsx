@@ -35,7 +35,7 @@ export function pxStringToFloat(pxString: string) {
 
 export interface IProblemReporterState {
     circleStyle: { left: string, width: string, top: string, height: string },
-    problemTextStyle?: { left: string, width: string, top: string, color: string},
+    problemTextStyle?: { left: string, width: string, top: string, color: string },
     problemText?: string,
 }
 
@@ -60,7 +60,7 @@ export default class ProblemReporter extends React.Component<IProblemReporterPro
         }
     }
 
-    public async showProblemText(currProblem: Iproblem, shouldTextBeOnLeft: boolean){
+    public async showProblemText(currProblem: Iproblem, shouldTextBeOnLeft: boolean) {
         const textTop = currProblem.top + ((currProblem.bottom - currProblem.top) / 2)
         const iframeLeft = pxStringToFloat(this.props.iframeStyle.left)
         if (iframeLeft === null) { return }
@@ -68,7 +68,7 @@ export default class ProblemReporter extends React.Component<IProblemReporterPro
         if (iframeWidth === null) { return }
         const textLeft = (shouldTextBeOnLeft ? textMinLeftOffset : iframeLeft + iframeWidth + textMinLeftOffset)
         let textWidth
-        if (shouldTextBeOnLeft){
+        if (shouldTextBeOnLeft) {
             textWidth = iframeLeft - 2 * textMinLeftOffset
         } else {
             textWidth = window.innerWidth - textLeft - textMinLeftOffset

@@ -1,6 +1,6 @@
 import React from 'react'
 import './mainframe.css'
-import ProblemReporter, {Iproblem} from './problem-reporter'
+import ProblemReporter, { Iproblem } from './problem-reporter'
 
 import {
     FaHandPointLeft,
@@ -44,7 +44,7 @@ export interface IMainFrameState {
     currLeft: number,
     iframeStyle: { left: string, width: string, pointerEvents: any },
     circleStyle: { left: string, width: string, top: string, height: string },
-    problemTextStyle?: { left: string, width: string, top: string, color: string},
+    problemTextStyle?: { left: string, width: string, top: string, color: string },
     problemText?: string,
     resizerStyle: { left: string },
     url: string,
@@ -132,7 +132,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
 
     public async showProblem(currProblem: Iproblem) {
         await this.setScreenSize(currProblem.screenSize, false)
-        if (this.reporterRef.current != null){
+        if (this.reporterRef.current != null) {
             await this.reporterRef.current.scrollToProblem(currProblem)
             await this.reporterRef.current.showCircle(currProblem)
         }
