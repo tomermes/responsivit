@@ -65,15 +65,22 @@ app.get('/analyze', async (_req, res) => {
   const body = await page.$('body')
 
   let errors: Iproblem[] = []
-  const sizes = [1920, 1400, 1000]
+  const sizes = [1920, 1400, 1000, 780]
   for (const screenSize of sizes) {
     await page.setViewport({ width: screenSize, height: 980 })
-    errors = errors.concat(await page.evaluate((evalBody, evalSize) => {
+    errors = errors.concat(await page.evaluate(evalBody => {
 
       const currErrors: Iproblem[] = []
       // error 1, find texts and headlines which are overflowing to right or to left
-      const textsAndHeadlines = evalBody.querySelectorAll('h1, h2, h3, h4, h5, h6, p')
+      const textsAndHeadlines = evalBody.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span')
       Array.from(textsAndHeadlines).map((text: any)  => {
+        if (text.children.length > 0) {
+          return
+        }
+
+        if (text.tagName !== 'SPAN'){
+          text.outerHTML = text.outerHTML.replace(text.innerText, `<span>${text.innerText}</span>`)
+        }
         const textRect = text.getBoundingClientRect()
         const textSize = textRect.width * textRect.height
 
@@ -81,7 +88,7 @@ app.get('/analyze', async (_req, res) => {
         const isLeftOverflow = textSize > 0 && textRect.left < 0 && textRect.right > 0
         if (isRightOverflow || isLeftOverflow) {
           currErrors.push({
-            screenSize: evalSize,
+            screenSize: window.innerWidth,
             left: textRect.left,
             top: textRect.top,
             right: textRect.right,
@@ -91,7 +98,7 @@ app.get('/analyze', async (_req, res) => {
         }
       })
       return currErrors
-    }, body, screenSize))
+    }, body))
   }
 
   if (body != null) {

@@ -20,22 +20,42 @@ const tabletMinSize = 640
 
 const mobileSize = 475
 
+const circleFactor = 1.3
+const headerOffset = 50
+const textMinLeftOffset = 10
+
 export interface Iproblem {
     screenSize: number,
     left: number,
     top: number,
     right: number,
-    bottom: number
+    bottom: number,
+    innerText?: string
 }
-
 export interface IMainFrameProps {
     url: string
+}
+
+export function pxStringToFloat(pxString: string) {
+    if (pxString == null) {
+        return null;
+    }
+    if (!isNaN(parseFloat(pxString))) {
+        return parseFloat(pxString);
+    } else if (pxString != null && pxString.indexOf("px") != -1) {
+        return parseFloat(pxString.split('px')[0]);
+    } else {
+        return null;
+    }
 }
 
 export interface IMainFrameState {
     screenSize: number,
     currLeft: number,
     iframeStyle: { left: string, width: string, pointerEvents: any },
+    circleStyle: { left: string, width: string, top: string, height: string },
+    problemTextStyle?: { left: string, width: string, top: string, color: string},
+    problemText?: string,
     resizerStyle: { left: string },
     url: string,
     isEditingSizeInput: boolean
@@ -57,6 +77,12 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                 left: '0px',
                 width: `${window.innerWidth}px`,
                 pointerEvents: 'initial'
+            },
+            circleStyle: {
+                left: '0px',
+                width: '0px',
+                top: '0px',
+                height: '0px',
             },
             resizerStyle: {
                 left: `${resizerOffset}px`
@@ -106,6 +132,9 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         script.defer = true
 
         document.body.appendChild(script)
+
+        // TODO - temp - remove
+        this.showProblem({ "screenSize": 780, "left": 321.921875, "top": 219, "right": 794.078125, "bottom": 339, "innerText": "Contact Us" })
     }
 
     public async handleKeyUrl(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -121,14 +150,73 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
 
     public scrollToProblem(currProblem: Iproblem) {
         const iframe = document.getElementsByTagName('iframe')[0] as HTMLIFrameElement
-        if (iframe.contentWindow !== null){
+        if (iframe.contentWindow !== null) {
             iframe.contentWindow.scrollTo(0, currProblem.top - (iframe.contentWindow.innerHeight / 2))
         }
+        
     }
 
-    public showProblem(currProblem: Iproblem) {
-        this.setScreenSize(currProblem.screenSize, false)
-        this.scrollToProblem(currProblem)
+    public async showProblemText(currProblem: Iproblem, shouldTextBeOnLeft: boolean){
+        const textTop = currProblem.top + ((currProblem.bottom - currProblem.top) / 2)
+        const iframeLeft = pxStringToFloat(this.state.iframeStyle.left)
+        if (iframeLeft === null) { return }
+        const iframeWidth = pxStringToFloat(this.state.iframeStyle.width)
+        if (iframeWidth === null) { return }
+        const textLeft = (shouldTextBeOnLeft ? textMinLeftOffset : iframeLeft + iframeWidth + textMinLeftOffset)
+        let textWidth
+        if (shouldTextBeOnLeft){
+            textWidth = iframeLeft - 2 * textMinLeftOffset
+        } else {
+            textWidth = window.innerWidth - textLeft - textMinLeftOffset
+        }
+
+        const color = 'red' // TODO - adjust
+        const problemText = 'You have a problem here'
+
+        this.setState({
+            problemTextStyle: {
+                left: `${textLeft}px`,
+                width: `${textWidth}px`,
+                top: `${textTop}px`,
+                color
+            },
+            problemText
+        })
+    }
+
+    public async showCircle(currProblem: Iproblem) {
+        let circleLeft = currProblem.left
+        const iframeLeft = pxStringToFloat(this.state.iframeStyle.left)
+        if (iframeLeft === null) { return }
+        circleLeft += iframeLeft
+
+        let circleWidth = (currProblem.right - currProblem.left)
+        circleLeft -= circleWidth * ((circleFactor - 1) / 2)
+        circleWidth *= circleFactor
+
+        let circleTop = currProblem.top
+        let circleHeight = (currProblem.bottom - currProblem.top)
+        circleTop -= circleHeight * ((circleFactor - 1) / 2)
+        circleTop += headerOffset
+        circleHeight *= circleFactor
+
+        await this.setState({
+            circleStyle: {
+                left: `${circleLeft}px`,
+                width: `${circleWidth}px`,
+                top: `${circleTop}px`,
+                height: `${circleHeight}px`,
+            }
+        })
+
+        const shouldTextBeOnLeft = (circleLeft < iframeLeft ? true : false)
+        this.showProblemText(currProblem, shouldTextBeOnLeft)
+    }
+
+    public async showProblem(currProblem: Iproblem) {
+        await this.setScreenSize(currProblem.screenSize, false)
+        await this.scrollToProblem(currProblem)
+        await this.showCircle(currProblem)
     }
 
     public async setScreenSize(newScreenSize: number, disablePointerEvents: boolean) {
@@ -137,14 +225,14 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         }
         const isInputActiveElement = document.activeElement !== null && document.activeElement.tagName === 'INPUT'
         if (newScreenSize < minScreenSize) {
-            if (!isInputActiveElement){
+            if (!isInputActiveElement) {
                 newScreenSize = minScreenSize
             } else {
                 return
             }
         }
         if (newScreenSize > window.innerWidth) {
-            if (!isInputActiveElement){
+            if (!isInputActiveElement) {
                 newScreenSize = window.innerWidth
             } else {
                 return
@@ -282,9 +370,9 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                             data-size="large"
                             data-show-count="false"
                             aria-label="Star tomermes/responsivit on GitHub"
-                            style={{float: 'right', display: 'none'}}
+                            style={{ float: 'right', display: 'none' }}
                         >
-                                Star
+                            Star
                         </a>
                     </div>
                 </header>
@@ -293,7 +381,8 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                     <div className="line" />
                     <div className="line" />
                 </div>
-                <div className="circle" />
+                <div className="circle" style={this.state.circleStyle} />
+                <p className="problem-text" style={this.state.problemTextStyle}>{this.state.problemText}</p>
                 {handShouldAppear ? <FaHandPointLeft className="return-left" onClick={this.resetResizing} /> : null}
             </div>
         )

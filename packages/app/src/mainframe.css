@@ -5,6 +5,8 @@
     --white: white;
     --top-offset: 50px;
     --blue: rgb(19, 211, 254);
+    --red: #fd5353;
+    --orange: #ff8f00;
 }
 
 *{
@@ -118,12 +120,25 @@ header{
 
 }
 
+.problems > div{
+    display: flex;
+    width: 70px;
+    justify-content: space-around;
+}
+
+.problem-text{
+    position: absolute;
+    text-align: center;
+    font-family: 'Lato', serif;
+    font-size: 25px;
+}
+
 .error-icon{
-    color: #fd5353;
+    color: var(--red);
 }
 
 .warning-icon{
-    color: #ff8f00;
+    color: var(--orange);
 }
 
 .common-screens{
