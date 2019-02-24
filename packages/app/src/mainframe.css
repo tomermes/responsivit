@@ -158,3 +158,15 @@ header{
 .screen-button:hover{
     color: var(--blue);
 }
+
+.circle{
+    position: absolute;
+    top:0px;
+    left:0px;
+    width: 0px;
+    height: 0px;
+    background-image: url('../assets/images/circle.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 2;
+}

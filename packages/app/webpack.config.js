@@ -26,6 +26,12 @@ exports.module = {
             ]
         },
         {
+            test: /\.svg$/,
+            use:[
+                {loader: "file-loader"}
+            ]
+        },
+        {
             test: /\.css$/, 
             loader: "style-loader!css-loader",
         }

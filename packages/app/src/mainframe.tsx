@@ -20,6 +20,14 @@ const tabletMinSize = 640
 
 const mobileSize = 475
 
+export interface Iproblem {
+    screenSize: number,
+    left: number,
+    top: number,
+    right: number,
+    bottom: number
+}
+
 export interface IMainFrameProps {
     url: string
 }
@@ -109,6 +117,18 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                 this.reloadUrl()
             }
         }
+    }
+
+    public scrollToProblem(currProblem: Iproblem) {
+        const iframe = document.getElementsByTagName('iframe')[0] as HTMLIFrameElement
+        if (iframe.contentWindow !== null){
+            iframe.contentWindow.scrollTo(0, currProblem.top - (iframe.contentWindow.innerHeight / 2))
+        }
+    }
+
+    public showProblem(currProblem: Iproblem) {
+        this.setScreenSize(currProblem.screenSize, false)
+        this.scrollToProblem(currProblem)
     }
 
     public async setScreenSize(newScreenSize: number, disablePointerEvents: boolean) {
@@ -273,6 +293,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                     <div className="line" />
                     <div className="line" />
                 </div>
+                <div className="circle" />
                 {handShouldAppear ? <FaHandPointLeft className="return-left" onClick={this.resetResizing} /> : null}
             </div>
         )
