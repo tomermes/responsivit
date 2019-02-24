@@ -242,14 +242,18 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                     </div>
                     <div className="right-panel">
                         <div className="problems">
-                            <span>0</span>
-                            <FaExclamationTriangle
-                                className="error-icon"
-                            />
-                            <span>0</span>
-                            <FaExclamationCircle
-                                className="warning-icon"
-                            />
+                            <div className="errors">
+                                <span>0</span>
+                                <FaExclamationTriangle
+                                    className="error-icon"
+                                />
+                            </div>
+                            <div className="warnings">
+                                <span>0</span>
+                                <FaExclamationCircle
+                                    className="warning-icon"
+                                />
+                            </div>
                         </div>
                         <a
                             className="github-button"
