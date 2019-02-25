@@ -12,7 +12,8 @@ import {
     FaExclamationTriangle
 } from 'react-icons/fa'
 
-const prefixAxiosUrl = 'http://localhost:3000/analyze/?url='
+//'http://localhost:3000/analyze/?url='
+const prefixAxiosUrl = 'https://reponsivit-server.herokuapp.com/?url=' 
 
 const minScreenSize = 320
 const handAppearThreshold = 50
@@ -134,13 +135,24 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         await this.setState({
             errors : (await axios.get(`${prefixAxiosUrl}${encodeURI(this.state.url)}`)).data
         })
+
+        const iframe = document.getElementsByTagName('iframe')[0] as HTMLIFrameElement
+        if (iframe.contentDocument === null){ return}
+        iframe.contentDocument.addEventListener('scroll', async () => {
+            await this._hideProblem()
+        }, false)
     }
 
     public async showProblem(currProblem: Iproblem) {
+        await this._hideErrorsList()
         await this.setScreenSize(currProblem.screenSize, false)
         if (this.reporterRef.current != null) {
             await this.reporterRef.current.scrollToProblem(currProblem)
-            await this.reporterRef.current.showCircle(currProblem)
+            setTimeout(() => {
+                if (this.reporterRef.current != null){
+                    this.reporterRef.current.showCircle(currProblem)
+                }
+            }, 0)
         }
     }
 
@@ -279,8 +291,9 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                     </div>
                 </div>
             )
+            const problemClick = () => {this.showProblem(problem)}
             return (
-                <div className="problem-li">
+                <div className="problem-li" onClick={problemClick}>
                     <div className="screen-type">
                         {screenIcon}
                         {problem.screenSize}
@@ -336,7 +349,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                                 onMouseEnter={this._showErrorsList}
                                 onMouseLeave={this._hideErrorsList}
                             >
-                                <span>-</span>
+                                <span>{this.state.errors.length}</span>
                                 <FaExclamationTriangle
                                     className="error-icon"
                                 />
@@ -393,13 +406,17 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
     }
 
     private async _showErrorsList() {
+        await this._hideProblem()
+        this.setState({
+            errorsMenuOpen: true
+        })
+    }
+
+    private async _hideProblem(){
         if (this.reporterRef.current !== null) {
             await this.reporterRef.current.hideCircle()
             await this.reporterRef.current.hideProblemText()
         }
-        this.setState({
-            errorsMenuOpen: true
-        })
     }
 
     private _hideErrorsList() {

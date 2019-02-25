@@ -3,7 +3,7 @@ import './mainframe.css'
 
 const circleFactor = 1.3
 const headerOffset = 50
-const textMinLeftOffset = 10
+const textMinLeftOffset = 25
 
 
 export interface Iproblem {
@@ -61,7 +61,10 @@ export default class ProblemReporter extends React.Component<IProblemReporterPro
     }
 
     public async showProblemText(currProblem: Iproblem, shouldTextBeOnLeft: boolean) {
-        const textTop = currProblem.top + ((currProblem.bottom - currProblem.top) / 2)
+        const iframe = document.getElementsByTagName('iframe')[0]
+        if (iframe === null || iframe.contentWindow === null){ return }
+        const topOffset = ((currProblem.bottom - currProblem.top) / 2) * circleFactor
+        const textTop = currProblem.bottom + topOffset - iframe.contentWindow.scrollY + 10
         const iframeLeft = pxStringToFloat(this.props.iframeStyle.left)
         if (iframeLeft === null) { return }
         const iframeWidth = pxStringToFloat(this.props.iframeStyle.width)
@@ -75,7 +78,6 @@ export default class ProblemReporter extends React.Component<IProblemReporterPro
         }
 
         const color = 'red' // TODO - adjust
-        const problemText = 'You have a problem here'
 
         this.setState({
             problemTextStyle: {
@@ -84,7 +86,7 @@ export default class ProblemReporter extends React.Component<IProblemReporterPro
                 top: `${textTop}px`,
                 color
             },
-            problemText
+            problemText: currProblem.problemText
         })
     }
 
@@ -110,7 +112,9 @@ export default class ProblemReporter extends React.Component<IProblemReporterPro
         circleLeft -= circleWidth * ((circleFactor - 1) / 2)
         circleWidth *= circleFactor
 
-        let circleTop = currProblem.top
+        const iframe = document.getElementsByTagName('iframe')[0]
+        if (iframe === null || iframe.contentWindow === null){ return }
+        let circleTop = currProblem.top - iframe.contentWindow.scrollY
         let circleHeight = (currProblem.bottom - currProblem.top)
         circleTop -= circleHeight * ((circleFactor - 1) / 2)
         circleTop += headerOffset
