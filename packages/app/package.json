@@ -23,7 +23,8 @@
     "react-dom": ">=16"
   },
   "dependencies": {
-    "@responsivit/components": "^1.0.0"
+    "@responsivit/components": "^1.0.0",
+    "axios": "^0.18.0"
   },
   "files": [
     "cjs",

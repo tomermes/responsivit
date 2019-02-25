@@ -11,7 +11,6 @@
     "lint:src": "tslint -p src",
     "lint:test": "tslint -p test",
     "test": "mocha -r @ts-tools/node/r \"test/**/*.spec.ts?(x)\" --watch-extensions ts,tsx --colors",
-    "prestart": "yarn workspace @responsivit/app build:umd",
     "start": "nodemon -r @ts-tools/node/r ./src/index.tsx",
     "prepack": "yarn build"
   },
@@ -20,7 +19,9 @@
     "react-dom": ">=16"
   },
   "dependencies": {
+    "@types/cors": "^2.8.4",
     "compression": "^1.7.3",
+    "cors": "^2.8.5",
     "express": "^4.16.4"
   },
   "files": [

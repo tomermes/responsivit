@@ -1,6 +1,7 @@
 import React from 'react'
 import './mainframe.css'
 import ProblemReporter, { Iproblem } from './problem-reporter'
+import axios from 'axios'
 
 import {
     FaHandPointLeft,
@@ -10,6 +11,8 @@ import {
     FaExclamationCircle,
     FaExclamationTriangle
 } from 'react-icons/fa'
+
+const prefixAxiosUrl = 'http://localhost:3000/analyze/?url='
 
 const minScreenSize = 320
 const handAppearThreshold = 50
@@ -32,8 +35,8 @@ export function pxStringToFloat(pxString: string) {
     }
     if (!isNaN(parseFloat(pxString))) {
         return parseFloat(pxString);
-    } else if (pxString != null && pxString.indexOf("px") != -1) {
-        return parseFloat(pxString.split('px')[0]);
+    } else if (pxString != null && pxString.indexOf('px') !== -1) {
+        return parseFloat(pxString.split('px')[0])
     } else {
         return null;
     }
@@ -43,12 +46,14 @@ export interface IMainFrameState {
     screenSize: number,
     currLeft: number,
     iframeStyle: { left: string, width: string, pointerEvents: any },
-    circleStyle: { left: string, width: string, top: string, height: string },
     problemTextStyle?: { left: string, width: string, top: string, color: string },
     problemText?: string,
     resizerStyle: { left: string },
     url: string,
-    isEditingSizeInput: boolean
+    isEditingSizeInput: boolean,
+    errorsMenuOpen: boolean,
+    warningsMenuOpen: boolean,
+    errors: Iproblem[]
 }
 
 const resizerOffset = 1
@@ -69,17 +74,14 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                 width: `${window.innerWidth}px`,
                 pointerEvents: 'initial'
             },
-            circleStyle: {
-                left: '0px',
-                width: '0px',
-                top: '0px',
-                height: '0px',
-            },
             resizerStyle: {
                 left: `${resizerOffset}px`
             },
             url: this.props.url,
-            isEditingSizeInput: false
+            isEditingSizeInput: false,
+            errorsMenuOpen: false,
+            warningsMenuOpen: false,
+            errors: []
         }
         this._startResizing = this._startResizing.bind(this)
         this.dragResize = this.dragResize.bind(this)
@@ -89,6 +91,9 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         this.onInputFocus = this.onInputFocus.bind(this)
         this.onInputBlur = this.onInputBlur.bind(this)
         this.changeScreenSizeByInput = this.changeScreenSizeByInput.bind(this)
+
+        this._showErrorsList = this._showErrorsList.bind(this)
+        this._hideErrorsList = this._hideErrorsList.bind(this)
 
         this.urlInputRef = React.createRef()
         this.sizeInputRef = React.createRef()
@@ -112,7 +117,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         }
     }
 
-    public componentDidMount() {
+    public async componentDidMount() {
         this.reloadUrl()
         if (this.sizeInputRef.current !== null) {
             this.sizeInputRef.current.value = window.innerWidth.toString()
@@ -125,9 +130,10 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
 
         document.body.appendChild(script)
 
-        // TODO - temp - remove
-        const problem = { "screenSize": 780, "left": 321.921875, "top": 219, "right": 794.078125, "bottom": 339, "innerText": "Contact Us" }
-        this.showProblem(problem)
+
+        await this.setState({
+            errors : (await axios.get(`${prefixAxiosUrl}${encodeURI(this.state.url)}`)).data
+        })
     }
 
     public async showProblem(currProblem: Iproblem) {
@@ -150,6 +156,11 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
     }
 
     public async setScreenSize(newScreenSize: number, disablePointerEvents: boolean) {
+        if (this.reporterRef.current !== null) {
+            await this.reporterRef.current.hideCircle()
+            await this.reporterRef.current.hideProblemText()
+        }
+
         if (isNaN(newScreenSize)) {
             return
         }
@@ -245,6 +256,46 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
 
         const isBetween = (num: number, min: number, max: number) => num >= min && num <= max
         const isTablet = isBetween(this.state.screenSize, tabletMinSize, desktopMinSize - 1)
+
+
+        const dataMapFunc = (problem: Iproblem) => {
+            const isProblemTablet = isBetween(problem.screenSize, tabletMinSize, desktopMinSize - 1)
+            const screenIcon = (
+                <div>
+                    <div className={problem.screenSize > desktopMinSize ? '' : 'hide'}>
+                        <FaDesktop
+                            style={{ fontSize: '30px' }}
+                        />
+                    </div>
+                    <div className={isProblemTablet ? '' : 'hide'}>
+                        <FaTabletAlt
+                            style={{ fontSize: '30px' }}
+                        />
+                    </div>
+                    <div className={problem.screenSize < tabletMinSize ? '' : 'hide'}>
+                        <FaMobileAlt
+                            style={{ fontSize: '30px' }}
+                        />
+                    </div>
+                </div>
+            )
+            return (
+                <div className="problem-li">
+                    <div className="screen-type">
+                        {screenIcon}
+                        {problem.screenSize}
+                    </div>
+                    <span className="problem-li-desc">{problem.problemText}</span>
+                </div>
+            )
+        }
+
+        const errorsList = (
+            <div className="problems-list">
+                {this.state.errors.map(dataMapFunc)}
+            </div>
+        )
+
         return (
             <div className="mainframe" onMouseMove={this.dragResize} onMouseUp={this.releaseHandler}>
                 <header>
@@ -280,17 +331,23 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                     </div>
                     <div className="right-panel">
                         <div className="problems">
-                            <div className="errors">
-                                <span>0</span>
+                            <div
+                                className="errors"
+                                onMouseEnter={this._showErrorsList}
+                                onMouseLeave={this._hideErrorsList}
+                            >
+                                <span>-</span>
                                 <FaExclamationTriangle
                                     className="error-icon"
                                 />
+                                {this.state.errorsMenuOpen ? errorsList : null}
                             </div>
                             <div className="warnings">
-                                <span>0</span>
+                                <span>-</span>
                                 <FaExclamationCircle
                                     className="warning-icon"
                                 />
+                                {this.state.warningsMenuOpen ? errorsList : null}
                             </div>
                         </div>
                         <a
@@ -332,6 +389,22 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                 width: this.state.iframeStyle.width,
                 pointerEvents: 'initial',
             }
+        })
+    }
+
+    private async _showErrorsList() {
+        if (this.reporterRef.current !== null) {
+            await this.reporterRef.current.hideCircle()
+            await this.reporterRef.current.hideProblemText()
+        }
+        this.setState({
+            errorsMenuOpen: true
+        })
+    }
+
+    private _hideErrorsList() {
+        this.setState({
+            errorsMenuOpen: false
         })
     }
 }

@@ -12,7 +12,7 @@ export interface Iproblem {
     top: number,
     right: number,
     bottom: number,
-    innerText?: string
+    problemText: string
 }
 
 export interface IProblemReporterProps {
@@ -88,6 +88,18 @@ export default class ProblemReporter extends React.Component<IProblemReporterPro
         })
     }
 
+    public async hideProblemText(){
+        this.setState({
+            problemTextStyle: {
+                left: `0px`,
+                width: `0px`,
+                top: `0px`,
+                color: ''
+            },
+            problemText: ''
+        })
+    }
+
     public async showCircle(currProblem: Iproblem) {
         let circleLeft = currProblem.left
         const iframeLeft = pxStringToFloat(this.props.iframeStyle.left)
@@ -115,6 +127,17 @@ export default class ProblemReporter extends React.Component<IProblemReporterPro
 
         const shouldTextBeOnLeft = (circleLeft < iframeLeft ? true : false)
         this.showProblemText(currProblem, shouldTextBeOnLeft)
+    }
+
+    public async hideCircle(){
+        await this.setState({
+            circleStyle: {
+                left: `0px`,
+                width: `0px`,
+                top: `0px`,
+                height: `0px`,
+            }
+        })
     }
 
     public render() {

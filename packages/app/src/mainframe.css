@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Lato');
+@import url('https://fonts.googleapis.com/css?family=Indie+Flower');
 
 :root {
     --black: rgb(15, 44, 41);
@@ -12,6 +13,22 @@
 *{
     -webkit-user-drag: none;
     user-select: none;
+}
+
+::-webkit-scrollbar {
+    max-width: 8px;
+    max-height: 10px;
+}
+
+ ::-webkit-scrollbar-track {
+    border-radius: 10px;
+    box-shadow: rgba(51, 223, 255, 0.13) 0px 0px 8px inset;
+}
+
+ ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: rgba(51, 223, 255, 0.6);
+    box-shadow: rgba(51, 223, 255, 0.498) 0px 0px 8px inset;
 }
 
 body{
@@ -111,6 +128,8 @@ header{
     justify-content: space-around;
     font-size: 30px;
     width: 200px;
+    height: 100%;
+    align-items: center;
 }
 
 .problems span{
@@ -124,13 +143,48 @@ header{
     display: flex;
     width: 70px;
     justify-content: space-around;
+    height: 100%;
+    align-items: center;
+    cursor: pointer;
 }
 
 .problem-text{
     position: absolute;
     text-align: center;
-    font-family: 'Lato', serif;
+    font-family: 'Indie Flower', cursive;
     font-size: 25px;
+}
+
+.problems-list{
+    position: absolute;
+    box-shadow: 0 1px 5px 0 rgba(41,85,115,.21);
+    background-color: white;
+    width: 300px;
+    max-height: 50vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    top: var(--top-offset);
+}
+
+.problem-li{
+    padding: 5px 10px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    border-bottom: 2px #eaf7ff solid;
+    font-family: 'Lato', serif;
+    color: var(--black);
+}
+
+.screen-type{
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+}
+
+.problem-li-desc{
+    padding: 0px 15px;
+    font-size: 14px;
 }
 
 .error-icon{
@@ -184,4 +238,8 @@ header{
     background-size: contain;
     background-repeat: no-repeat;
     z-index: 2;
+}
+
+.hide{
+    display: none;
 }
