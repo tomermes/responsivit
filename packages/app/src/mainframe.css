@@ -176,6 +176,22 @@ header{
     color: var(--black);
 }
 
+.problem-li.new{
+    background-color: rgb(237, 242, 250);
+}
+
+.problem-li.new:hover{
+    background-color: rgb(229, 234, 242);
+}
+
+.problem-li{
+    background-color: white;
+}
+
+.problem-li:hover{
+    background-color: rgb(246, 246, 247);
+}
+
 .screen-type{
     display: flex;
     flex-direction: column;

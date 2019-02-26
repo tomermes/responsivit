@@ -24,7 +24,8 @@
   },
   "dependencies": {
     "@responsivit/components": "^1.0.0",
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "react-spinjs": "^3.0.0"
   },
   "files": [
     "cjs",

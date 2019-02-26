@@ -3,6 +3,7 @@ import './mainframe.css'
 import ProblemReporter, { Iproblem } from './problem-reporter'
 import axios from 'axios'
 
+
 import {
     FaHandPointLeft,
     FaDesktop,
@@ -13,7 +14,7 @@ import {
 } from 'react-icons/fa'
 
 //'http://localhost:3000/analyze/?url='
-const prefixAxiosUrl = 'https://reponsivit-server.herokuapp.com/?url=' 
+const prefixAxiosUrl = 'https://reponsivit-server.herokuapp.com/?url='
 
 const minScreenSize = 320
 const handAppearThreshold = 50
@@ -136,6 +137,8 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
             errors : (await axios.get(`${prefixAxiosUrl}${encodeURI(this.state.url)}`)).data
         })
 
+        this.state.errors.map(error => {error.isNew = true})
+
         const iframe = document.getElementsByTagName('iframe')[0] as HTMLIFrameElement
         if (iframe.contentDocument === null){ return}
         iframe.contentDocument.addEventListener('scroll', async () => {
@@ -144,6 +147,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
     }
 
     public async showProblem(currProblem: Iproblem) {
+        currProblem.isNew = false
         await this._hideErrorsList()
         await this.setScreenSize(currProblem.screenSize, false)
         if (this.reporterRef.current != null) {
@@ -293,7 +297,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
             )
             const problemClick = () => {this.showProblem(problem)}
             return (
-                <div className="problem-li" onClick={problemClick}>
+                <div className={`problem-li ${problem.isNew ? 'new' : ''}`} onClick={problemClick}>
                     <div className="screen-type">
                         {screenIcon}
                         {problem.screenSize}

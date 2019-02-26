@@ -12,7 +12,8 @@ export interface Iproblem {
     top: number,
     right: number,
     bottom: number,
-    problemText: string
+    problemText: string,
+    isNew?: boolean
 }
 
 export interface IProblemReporterProps {
