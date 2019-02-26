@@ -2,7 +2,7 @@ import React from 'react'
 import './mainframe.css'
 import ProblemReporter, { Iproblem } from './problem-reporter'
 import axios from 'axios'
-
+import ReactSpinner from 'react-spinjs-new'
 
 import {
     FaHandPointLeft,
@@ -55,7 +55,7 @@ export interface IMainFrameState {
     isEditingSizeInput: boolean,
     errorsMenuOpen: boolean,
     warningsMenuOpen: boolean,
-    errors: Iproblem[]
+    errors?: Iproblem[]
 }
 
 const resizerOffset = 1
@@ -82,8 +82,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
             url: this.props.url,
             isEditingSizeInput: false,
             errorsMenuOpen: false,
-            warningsMenuOpen: false,
-            errors: []
+            warningsMenuOpen: false
         }
         this._startResizing = this._startResizing.bind(this)
         this.dragResize = this.dragResize.bind(this)
@@ -134,13 +133,13 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
 
 
         await this.setState({
-            errors : (await axios.get(`${prefixAxiosUrl}${encodeURI(this.state.url)}`)).data
+            errors: (await axios.get(`${prefixAxiosUrl}${encodeURI(this.state.url)}`)).data
         })
 
-        this.state.errors.map(error => {error.isNew = true})
+        this.state.errors.map(error => { error.isNew = true })
 
         const iframe = document.getElementsByTagName('iframe')[0] as HTMLIFrameElement
-        if (iframe.contentDocument === null){ return}
+        if (iframe.contentDocument === null) { return }
         iframe.contentDocument.addEventListener('scroll', async () => {
             await this._hideProblem()
         }, false)
@@ -153,7 +152,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         if (this.reporterRef.current != null) {
             await this.reporterRef.current.scrollToProblem(currProblem)
             setTimeout(() => {
-                if (this.reporterRef.current != null){
+                if (this.reporterRef.current != null) {
                     this.reporterRef.current.showCircle(currProblem)
                 }
             }, 0)
@@ -295,7 +294,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                     </div>
                 </div>
             )
-            const problemClick = () => {this.showProblem(problem)}
+            const problemClick = () => { this.showProblem(problem) }
             return (
                 <div className={`problem-li ${problem.isNew ? 'new' : ''}`} onClick={problemClick}>
                     <div className="screen-type">
@@ -307,11 +306,33 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
             )
         }
 
-        const errorsList = (
-            <div className="problems-list">
-                {this.state.errors.map(dataMapFunc)}
-            </div>
-        )
+        let errorsCount
+        let errorsList
+        if (this.state.errors === undefined) {
+            const spinConfig = {
+                width: 2,
+                radius: 10,
+                length: 1
+            }
+
+            errorsCount = (
+                <span style={{ position: 'relative' }}>
+                    <ReactSpinner config={spinConfig} />
+                </span>
+            )
+            errorsList = <div />
+        } else {
+            errorsCount = (
+                <span>
+                    {this.state.errors.length}
+                </span>
+            )
+            errorsList = (
+                <div className="problems-list">
+                    {this.state.errors.map(dataMapFunc)}
+                </div>
+            )
+        }
 
         return (
             <div className="mainframe" onMouseMove={this.dragResize} onMouseUp={this.releaseHandler}>
@@ -353,7 +374,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
                                 onMouseEnter={this._showErrorsList}
                                 onMouseLeave={this._hideErrorsList}
                             >
-                                <span>{this.state.errors.length}</span>
+                                {errorsCount}
                                 <FaExclamationTriangle
                                     className="error-icon"
                                 />
@@ -416,7 +437,7 @@ export default class MainFrame extends React.Component<IMainFrameProps, IMainFra
         })
     }
 
-    private async _hideProblem(){
+    private async _hideProblem() {
         if (this.reporterRef.current !== null) {
             await this.reporterRef.current.hideCircle()
             await this.reporterRef.current.hideProblemText()

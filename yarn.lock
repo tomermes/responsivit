@@ -6090,7 +6090,7 @@ promzard@^0.3.0:
   dependencies:
     read "1"
 
-prop-types@^15.5.6, prop-types@^15.6.2:
+prop-types@^15.5.6, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -6330,11 +6330,12 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
-react-spinjs@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/react-spinjs/-/react-spinjs-3.0.0.tgz#6fd818f3c91a5ec6ebc11734963105f971944735"
-  integrity sha1-b9gY88kaXsbrwRc0ljEF+XGURzU=
+react-spinjs-new@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/react-spinjs-new/-/react-spinjs-new-4.0.0.tgz#c1c90160e4c76b77ab50b8eac8f46b48147ad7a1"
+  integrity sha512-rHqFbdASOPG2/5u5lZ2fADq0BqoW1fSM0GK/QcclXxHNlPYwlRdBFBHf6f2+6cy3i5BX8gTZfkINLm3d+65qWw==
   dependencies:
+    prop-types "^15.6.1"
     spin.js "^2.3.1"
 
 react-transition-group@^1.2.0:
